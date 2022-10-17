@@ -1,0 +1,38 @@
+import javax.swing.JOptionPane;
+
+public class HomeGame 
+{
+	private String nameplayer; 
+
+	static HomeGame h = new HomeGame();
+	static Soundbg s = new Soundbg();
+
+	public void homeGame(){ // build buuton for click
+		String[] buttons = { "Play Game", "Credits Game"};
+		int rc = JOptionPane.showOptionDialog(null, "please select your buttons", "Enter a Number",
+                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
+                null, buttons, null);
+		//System.out.println(rc);
+
+		switch(rc){
+		case 0 :
+			s.soundbutton();
+			nameplayer = JOptionPane.showInputDialog("Enter your name:");
+		break;
+		case 1 :
+			s.soundbutton();
+			h.historyPlay();
+		break;
+		}
+	}
+
+	public void historyPlay(){ //about Game (credit)
+		JOptionPane.showMessageDialog(null,"Student AI and website java 2D Game");
+		h.homeGame();
+	}
+
+	public String getNameplayer(){
+		return nameplayer;
+	}
+
+}

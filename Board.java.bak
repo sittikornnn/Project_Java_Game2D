@@ -1,0 +1,554 @@
+import javax.swing.ImageIcon;
+import javax.swing.JPanel;
+import javax.swing.Timer;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+
+import java.awt.FontMetrics;
+
+import javax.swing.JOptionPane;
+
+import java.awt.Image;
+
+import javax.swing.ImageIcon;
+
+
+public class Board extends JPanel {
+
+    private Dimension d; //area board
+    private List<Alien> aliens; 
+    private Player player;
+    private List<Shot> shot;
+	private Boss boss;
+    
+    private int direction = -1,direction1 = -2; // speech move alien = -1 and Boss = -2
+    private int deaths = 0,Bossdeath=0; // check deaths alien and Boss
+
+    private boolean inGame = true; // check Game Open Game and you can Play Game
+    private String explImg = "images/explosion.png"; // image destroy
+    private String message = "Game Over"; //text
+
+    private Timer timer; //time some thing
+
+	public static HomeGame h = new HomeGame();
+	static Soundbg s = new Soundbg();
+	
+	static int HPplayer = 3; //HP player
+	static int LP = 3; //HP Boss
+	int point; //score board Boss = 3,alien = 1(alien have 24 item)
+
+    public Board() {
+		h.homeGame();	//menu button
+		initBoard();	//bulid board each
+		s.playEffect(); // addsound
+		gameInit();	//bulid charactor
+    }
+
+    private void initBoard() {
+        addKeyListener(new TAdapter()); // add keyboard
+        setFocusable(true); //focus player keyboard
+        d = new Dimension(Commons.BOARD_WIDTH, Commons.BOARD_HEIGHT); //build board
+        //setBackground(Color.black);
+
+        timer = new Timer(Commons.DELAY, new GameCycle()); //time + update code for game
+        timer.start();
+
+        gameInit();
+    }
+
+
+    private void gameInit() { // build alien 24 icon
+
+        aliens = new ArrayList<>();
+
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 6; j++) {
+
+                Alien alien = new Alien(Commons.ALIEN_INIT_X + 18 * j,
+                        Commons.ALIEN_INIT_Y + 18 * i);
+                aliens.add(alien);
+            }
+        }
+
+        player = new Player();
+        //shot = new Shot();
+		shot = new ArrayList<>();
+		boss = new Boss(140,0);
+    }
+
+    private void drawAliens(Graphics g) {
+
+        for (Alien alien : aliens) {
+
+            if (alien.isVisible()) {
+                g.drawImage(alien.getImage(), alien.getX(), alien.getY(), this);
+            }
+
+            if (alien.isDying()) {
+
+                alien.die();
+            }
+        }
+    }
+
+	private void drawBoss(Graphics g) {
+
+            if (boss.isVisible()) {
+
+                g.drawImage(boss.getImage(), boss.getX(), boss.getY(), this);
+            }
+
+            if (boss.isDying()) {
+
+                boss.die();
+            }
+    }
+
+    private void drawPlayer(Graphics g) {
+
+        if (player.isVisible()) {
+
+            g.drawImage(player.getImage(), player.getX(), player.getY(), this);
+        }
+
+        if (player.isDying()) {
+			//--HP;
+			
+            player.die(); //remove image player (destroy player)
+			//System.out.println(HP);
+			g.drawImage(player.getImage(), player.getX(), player.getY(), this);
+            inGame = false;
+        }
+		
+    }
+
+    private void drawShot(Graphics g) {
+		//shot = new ArrayList<>();
+		for(Shot shot : shot){
+			if (shot.isVisible()) {
+            g.drawImage(shot.getImage(), shot.getX(), shot.getY(), this);
+			}
+		}
+    }
+
+    private void drawBombing(Graphics g) {
+
+        for (Alien a : aliens) {
+
+            Alien.Bomb b = a.getBomb();
+
+            if (!b.isDestroyed()) {
+                g.drawImage(b.getImage(), b.getX(), b.getY(), this);
+            }
+        }
+    }
+
+	private void drawBalling(Graphics g) {
+		
+            Boss.Ball b = boss.getBall();
+
+            if (!b.isDestroyed()) {
+                g.drawImage(b.getImage(), b.getX(), b.getY(), this);
+            }
+    }
+
+	public void textname(Graphics g) { //name score and HP image
+		String name = "Player :"+ h.getNameplayer();
+        g.drawString(name, 10, Commons.GROUND+20);
+		String jj = "score :";
+		jj += point;
+		g.drawString(jj,10,Commons.GROUND+40);
+		String HP = "HP :";
+		g.drawString(HP,10,Commons.GROUND+60);
+
+		Image imgHP;
+		ImageIcon ii = new ImageIcon("images/HP.png"); // image alien
+        imgHP = ii.getImage();
+		for(int i=1;i<=HPplayer;i++){
+		g.drawImage(imgHP,40*i,Commons.GROUND+50,this);
+		}
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        doDrawing(g);
+    }
+
+    private void doDrawing(Graphics g) {
+		Image imagebg;
+
+		ImageIcon ii = new ImageIcon("images/bgP.png"); // image alien
+        imagebg = ii.getImage();
+
+		g.drawImage(imagebg,0,0,this);
+        if (inGame) { // finish Game (Game Over and Game winner)
+            drawAliens(g);
+            drawPlayer(g);
+            drawShot(g);
+            drawBombing(g);
+			drawBalling(g);
+			drawBoss(g);
+			g.setColor(Color.black);
+			g.fillRect(0,Commons.GROUND+2,d.width, d.height);
+			g.setColor(Color.green);
+			g.drawLine(0, Commons.GROUND,Commons.BOARD_WIDTH, Commons.GROUND);
+			textname(g);
+        } else {
+
+            if (timer.isRunning()) {
+                timer.stop();
+            }
+
+            gameOver(g);
+        }
+
+        Toolkit.getDefaultToolkit().sync();
+    }
+
+    private void gameOver(Graphics g) {
+		
+		if (Bossdeath == 1) {
+			s.soundgamewin();
+        }else{
+			s.soundgameover();
+		}
+		
+
+        g.setColor(Color.black);
+        g.fillRect(0, 0, Commons.BOARD_WIDTH, Commons.BOARD_HEIGHT+60);
+
+        g.setColor(new Color(0, 32, 48));
+        g.fillRect(50, Commons.BOARD_WIDTH / 2 - 30, Commons.BOARD_WIDTH - 100, 50);
+        g.setColor(Color.white);
+        g.drawRect(50, Commons.BOARD_WIDTH / 2 - 30, Commons.BOARD_WIDTH - 100, 50);
+
+
+        Font small = new Font("Helvetica", Font.BOLD, 14);
+        FontMetrics fontMetrics = this.getFontMetrics(small);
+
+        g.setColor(Color.white);
+        g.setFont(small);
+        g.drawString(message, (Commons.BOARD_WIDTH - fontMetrics.stringWidth(message)) / 2,
+                Commons.BOARD_WIDTH / 2);
+    }
+
+    private void update() {
+
+       /* if (deaths == Commons.NUMBER_OF_ALIENS_TO_DESTROY) {
+            inGame = false;
+            timer.stop();
+            message = h.getNameplayer()+"  You won!";
+			s.soundgamewin();
+        }*/
+
+		if(deaths == Commons.NUMBER_OF_ALIENS_TO_DESTROY){
+			boss.setVisible(true);
+		}
+
+		if(Bossdeath == 1){
+			inGame = false;
+            timer.stop();
+            message = h.getNameplayer()+"  You won!";
+			s.soundgamewin();
+		}
+
+        // player contoller by keyboard
+        player.act();
+
+        // shot hit alien
+		for(Shot shot : shot){
+        if (shot.isVisible()) {
+
+            int shotX = shot.getX();
+            int shotY = shot.getY();
+
+            for (Alien alien : aliens) {
+
+                int alienX = alien.getX();
+                int alienY = alien.getY();
+
+                if (alien.isVisible() && shot.isVisible()) {
+                    if (shotX >= (alienX)
+                            && shotX <= (alienX + Commons.ALIEN_WIDTH)
+                            && shotY >= (alienY)
+                            && shotY <= (alienY + Commons.ALIEN_HEIGHT)) {
+
+                        ImageIcon ii = new ImageIcon(explImg);
+                        alien.setImage(ii.getImage());
+                        alien.setDying(true);
+                        deaths++;
+						point++;
+						s.soundkillAlien();
+                        shot.die();
+                    }
+                }
+            }
+
+			if(boss.isVisible() && shot.isVisible()){
+
+				int bossX = boss.getX();
+                int bossY = boss.getY();
+
+				if (shotX >= (bossX)
+                            && shotX <= (bossX + 30)
+                            && shotY >= (bossY)
+                            && shotY <= (bossY + 39)) {
+						point++;
+						s.soundkillAlien();
+                        shot.die();
+						--LP;
+					if(LP == 0){
+                        ImageIcon ii1 = new ImageIcon(explImg);
+                        boss.setImage(ii1.getImage());
+                        boss.setDying(true);
+                        //deaths++;
+						Bossdeath++;
+						point++;
+						s.soundkillAlien();
+                        shot.die();
+					}
+                }
+			}
+
+            int y = shot.getY();
+            y -= 4;
+
+            if (y < 0) {
+                shot.die();
+            } else {
+                shot.setY(y);
+            }
+        }
+		}
+
+        // move aliens
+
+        for (Alien alien : aliens) {
+
+            int x = alien.getX();
+
+            if (x >= Commons.BOARD_WIDTH - Commons.BORDER_RIGHT && direction != -1) {
+
+                direction = -1;
+
+                Iterator<Alien> i1 = aliens.iterator(); // call Array List object <variable>
+
+                while (i1.hasNext()) {
+
+                    Alien a2 = i1.next();
+                    a2.setY(a2.getY() + Commons.GO_DOWN);
+                }
+            }
+
+            if (x <= Commons.BORDER_LEFT && direction != 1) {
+
+                direction = 1;
+
+                Iterator<Alien> i2 = aliens.iterator();
+
+                while (i2.hasNext()) { //hasNext is loop (true/false)
+
+                    Alien a = i2.next();
+                    a.setY(a.getY() + Commons.GO_DOWN);
+                }
+            }
+        }
+		// check if alien live on ground and hit player
+        Iterator<Alien> it = aliens.iterator();
+
+        while (it.hasNext()) {
+
+            Alien alien = it.next();
+
+            if (alien.isVisible()) {
+
+                int y = alien.getY();
+
+                if (y > Commons.GROUND - Commons.ALIEN_HEIGHT) { // while ground lose game
+                    inGame = false;
+                    message = "Invasion!";
+                }
+
+                alien.act(direction);
+            }
+        }
+
+		//move Boss
+		int Bx = boss.getX();
+            if (Bx >= Commons.BOARD_WIDTH - Commons.BORDER_RIGHT && direction1 != -2) {
+					direction1 = -2;
+					boss.setY(boss.getY() + 20);	
+                
+            }
+
+            if (Bx <= Commons.BORDER_LEFT && direction1 != 2) {
+					direction1 = 2;
+					boss.setY(boss.getY() + 20);	
+
+            }
+
+			if (boss.isVisible()) {
+
+                int y = boss.getY();
+
+                if (y > Commons.GROUND - Commons.ALIEN_HEIGHT) { // while ground lose game
+                    inGame = false;
+                    message = "Invasion!";
+                }
+
+                boss.act(direction1);
+            }
+
+        // bombs
+        Random generator = new Random();
+
+        for (Alien alien : aliens) {
+
+            int shot = generator.nextInt(15);
+            Alien.Bomb bomb = alien.getBomb();
+			//System.out.println(bomb);
+			// draw bomb 
+            if (shot == Commons.CHANCE && alien.isVisible() && bomb.isDestroyed()){
+                bomb.setDestroyed(false);
+                bomb.setX(alien.getX());
+                bomb.setY(alien.getY());
+            }
+
+            int bombX = bomb.getX();
+            int bombY = bomb.getY();
+            int playerX = player.getX();
+            int playerY = player.getY();
+			//when player hit bomb and deaths (game over)
+            if (player.isVisible() && !bomb.isDestroyed()) {
+
+                if (bombX >= (playerX)
+                        && bombX <= (playerX + Commons.PLAYER_WIDTH)
+                        && bombY >= (playerY)
+                        && bombY <= (playerY + Commons.PLAYER_HEIGHT)) {
+						bomb.setVisible(false);
+						bomb.setDestroyed(true);
+						--HPplayer;
+						s.sounddownHP();
+					if(HPplayer == 0){
+						ImageIcon ii = new ImageIcon(explImg);
+						player.setImage(ii.getImage());
+						player.setDying(true);
+						bomb.setDestroyed(true);
+					}
+                }
+            }
+
+            if (!bomb.isDestroyed()) {
+
+                bomb.setY(bomb.getY() + 1);
+
+                if (bomb.getY() >= Commons.GROUND - Commons.BOMB_HEIGHT) {
+
+                    bomb.setDestroyed(true);
+                }
+            }
+        }
+		//ball dragon
+			Random Ranball = new Random();
+			int shot1 = Ranball.nextInt(358);
+            //Bomb bomb = boss.getBomb();
+			Boss.Ball ball = boss.getBall();
+			// draw bomb 
+            if (boss.isVisible() && ball.isDestroyed()){ //shot1 == Commons.CHANCE && boss.isVisible() && ball.isDestroyed()
+                
+				ball.setDestroyed(false); // throw ball 
+                ball.setX(shot1+1);
+                ball.setY(boss.getY());
+				
+            }
+
+			if(!ball.isDestroyed()){
+
+                ball.setY(ball.getY() + 1);
+
+                if (ball.getY() >= Commons.GROUND) {
+
+                    ball.setDestroyed(true);
+                }
+            }
+		// hit ball and then you death
+				int ballX = ball.getX();
+				int ballY = ball.getY();
+				int playerX = player.getX();
+				int playerY = player.getY();
+			if (player.isVisible() && !ball.isDestroyed()) {
+
+                if ((ballX+33) >= (playerX)
+                        && (ballX) <= (playerX + Commons.PLAYER_WIDTH)
+                        && (ballY+159) >= (playerY)
+                        && (ballY) <= (playerY + Commons.PLAYER_HEIGHT)) {
+
+                    ImageIcon ii = new ImageIcon(explImg);
+                    player.setImage(ii.getImage());
+                    player.setDying(true);
+                    ball.setDestroyed(true);
+                }
+            }
+    }
+
+    private void doGameCycle() {
+
+        update();
+        repaint();
+    }
+
+    private class GameCycle implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            doGameCycle();
+        }
+    }
+
+    private class TAdapter extends KeyAdapter {
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+
+            player.keyReleased(e);
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+
+            player.keyPressed(e);
+
+            int x = player.getX();
+            int y = player.getY();
+
+            int key = e.getKeyCode();
+
+            if (key == KeyEvent.VK_SPACE) {
+
+                if (inGame) {
+
+                   // if (!shot.isVisible()) {
+						
+                        //shot = new Shot(x, y);
+						shot.add(new Shot(x,y));
+						s.soundshot();
+                    //}
+						
+                }
+            }
+        }
+    }
+}

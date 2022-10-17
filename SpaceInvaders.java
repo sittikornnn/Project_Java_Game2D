@@ -1,0 +1,35 @@
+import java.awt.EventQueue;
+import javax.swing.JFrame;
+
+
+public class SpaceInvaders extends JFrame {
+
+    public SpaceInvaders() {
+
+        initUI();
+    }
+
+    private void initUI() {
+
+		
+
+        add(new Board());
+
+        setTitle("Space Invaders"); //set name titile(head window)
+        setSize(Commons.BOARD_WIDTH, Commons.BOARD_HEIGHT+60);//setSizeJFrame
+
+        setDefaultCloseOperation(EXIT_ON_CLOSE);//when you click close window JFrame is close too
+        setResizable(false); //figsize JFrame
+        setLocationRelativeTo(null); // start display JFrame
+		
+    }
+
+    public static void main(String[] args) {
+
+		EventQueue.invokeLater(() -> {
+
+            SpaceInvaders ex = new SpaceInvaders();
+            ex.setVisible(true);
+        });
+    }
+}

@@ -1,0 +1,194 @@
+//////sound
+import java.io.File;
+import java.io.IOException;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+public class Soundbg{
+
+public void playEffect(){
+		AudioInputStream audioStream = null;
+			try {
+				File file = new File("bc.wav");
+				audioStream = AudioSystem.getAudioInputStream(file);
+				Clip clip = AudioSystem.getClip();
+        
+				clip.open(audioStream);
+				clip.start();
+				//String response = sc.next(); // I don't understand why you are using Scanner!
+			}
+			catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+				System.err.println(ex);
+			}
+			finally {
+				try {
+					if (audioStream != null) {
+						audioStream.close();
+					}
+				}
+				catch (IOException ex) {
+					System.err.println(ex);
+				}
+			}
+}
+
+public void soundbutton(){
+		AudioInputStream audioStream = null;
+			try {
+				File file = new File("buttons.wav");
+				audioStream = AudioSystem.getAudioInputStream(file);
+				Clip clip = AudioSystem.getClip();
+        
+				clip.open(audioStream);
+				clip.start();
+				//String response = sc.next(); // I don't understand why you are using Scanner!
+			}
+			catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+				System.err.println(ex);
+			}
+			finally {
+				try {
+					if (audioStream != null) {
+						audioStream.close();
+					}
+				}
+				catch (IOException ex) {
+					System.err.println(ex);
+				}
+			}
+}
+
+public void soundgameover(){
+		AudioInputStream audioStream = null;
+			try {
+				File file = new File("gameover.wav");
+				audioStream = AudioSystem.getAudioInputStream(file);
+				Clip clip = AudioSystem.getClip();
+        
+				clip.open(audioStream);
+				clip.start();
+				//String response = sc.next(); // I don't understand why you are using Scanner!
+			}
+			catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+				System.err.println(ex);
+			}
+			finally {
+				try {
+					if (audioStream != null) {
+						audioStream.close();
+					}
+				}
+				catch (IOException ex) {
+					System.err.println(ex);
+				}
+			}
+}
+
+public void soundgamewin(){
+		AudioInputStream audioStream = null;
+			try {
+				File file = new File("gamewin.wav");
+				audioStream = AudioSystem.getAudioInputStream(file);
+				Clip clip = AudioSystem.getClip();
+        
+				clip.open(audioStream);
+				clip.start();
+				//String response = sc.next(); // I don't understand why you are using Scanner!
+			}
+			catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+				System.err.println(ex);
+			}
+			finally {
+				try {
+					if (audioStream != null) {
+						audioStream.close();
+					}
+				}
+				catch (IOException ex) {
+					System.err.println(ex);
+				}
+			}
+}
+
+public void soundshot(){
+		AudioInputStream audioStream = null;
+			try {
+				File file = new File("shots.wav");
+				audioStream = AudioSystem.getAudioInputStream(file);
+				Clip clip = AudioSystem.getClip();
+        
+				clip.open(audioStream);
+				clip.start();
+				//String response = sc.next(); // I don't understand why you are using Scanner!
+			}
+			catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+				System.err.println(ex);
+			}
+			finally {
+				try {
+					if (audioStream != null) {
+						audioStream.close();
+					}
+				}
+				catch (IOException ex) {
+					System.err.println(ex);
+				}
+			}
+}
+
+public void soundkillAlien(){
+		AudioInputStream audioStream = null;
+			try {
+				File file = new File("Alienbreak.wav");
+				audioStream = AudioSystem.getAudioInputStream(file);
+				Clip clip = AudioSystem.getClip();
+        
+				clip.open(audioStream);
+				clip.start();
+				//String response = sc.next(); // I don't understand why you are using Scanner!
+			}
+			catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+				System.err.println(ex);
+			}
+			finally {
+				try {
+					if (audioStream != null) {
+						audioStream.close();
+					}
+				}
+				catch (IOException ex) {
+					System.err.println(ex);
+				}
+			}
+}
+
+public void sounddownHP(){
+		AudioInputStream audioStream = null;
+			try {
+				File file = new File("hitPlayer.wav");
+				audioStream = AudioSystem.getAudioInputStream(file);
+				Clip clip = AudioSystem.getClip();
+        
+				clip.open(audioStream);
+				clip.start();
+				//String response = sc.next(); // I don't understand why you are using Scanner!
+			}
+			catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+				System.err.println(ex);
+			}
+			finally {
+				try {
+					if (audioStream != null) {
+						audioStream.close();
+					}1
+				}
+				catch (IOException ex) {
+					System.err.println(ex);
+				}
+			}
+}
+
+}
